@@ -1,6 +1,6 @@
-export function sketch(p) {
-  let circles = [];
+import { useBodiesStore } from "../../stores/bodies.store";
 
+export function sketch(p) {
   p.setup = () => {
     p.createCanvas(p.width, p.height);
     p.background(240);
@@ -8,16 +8,19 @@ export function sketch(p) {
 
   p.draw = () => {
     p.background("darkblue");
-    for (let c of circles) {
-      p.fill("yellow");
-      p.noStroke();
-      p.circle(c.x, c.y, c.r * 2);
+
+    p.fill("yellow");
+    p.noStroke();
+    const diameter = 40;
+    for (let body of useBodiesStore.getState().bodies) {
+      p.circle(body.position.x, body.position.y, diameter);
     }
   };
 
   p.mousePressed = () => {
     if (p.mouseY >= 0 && p.mouseY <= p.height) {
-      circles.push({ x: p.mouseX, y: p.mouseY, r: 20 });
+      const position = { x: p.mouseX, y: p.mouseY };
+      useBodiesStore.getState().createBody({ position });
     }
   };
 }
