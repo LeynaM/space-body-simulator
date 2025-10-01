@@ -1,7 +1,7 @@
 import { useBodiesStore } from "../../stores/bodies.store";
 
 export function sketch(p) {
-  p.setup = () => {
+  p.setup = async () => {
     p.createCanvas(p.width, p.height);
     p.background(240);
   };
