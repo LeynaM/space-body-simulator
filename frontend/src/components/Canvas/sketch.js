@@ -20,7 +20,10 @@ export function sketch(p) {
   p.mousePressed = () => {
     if (p.mouseY >= 0 && p.mouseY <= p.height) {
       const position = { x: p.mouseX, y: p.mouseY };
-      const velocity = { x: 10, y: 1 };
+      const velocity = {
+        x: (Math.random() - 0.5) * 100,
+        y: (Math.random() - 0.5) * 100,
+      };
       useBodiesStore.getState().createBody({ position, velocity });
     }
   };
