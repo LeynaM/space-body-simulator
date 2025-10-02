@@ -2,16 +2,10 @@ import styles from "./Canvas.module.css";
 import p5 from "p5";
 import { sketch } from "./sketch";
 import { useEffect, useRef } from "react";
-import { useBodiesStore } from "../../stores/bodies.store";
 
 function Canvas() {
   const canvasContainerRef = useRef(null);
   const pfiveRef = useRef(null);
-  const { loadBodies } = useBodiesStore();
-
-  useEffect(() => {
-    setInterval(() => loadBodies(), 1000);
-  }, [loadBodies]);
 
   useEffect(() => {
     if (!canvasContainerRef.current) return;

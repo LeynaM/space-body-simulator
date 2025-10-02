@@ -13,4 +13,5 @@ export const useBodiesStore = create((set) => ({
       bodies: [...state.bodies, created],
     }));
   },
+  setBodies: (bodies) => set({ bodies }),
 }));

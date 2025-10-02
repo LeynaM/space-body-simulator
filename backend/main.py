@@ -1,6 +1,8 @@
 import asyncio
+import json
 
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
+from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -45,6 +47,16 @@ def read_bodies():
 def create_body(body: Body):
     bodies.append(body)
     return body
+
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        data = json.dumps(jsonable_encoder(bodies))
+        await websocket.send_text(data)
+        print("sending", data)
+        await asyncio.sleep(1)
 
 
 async def tick():
