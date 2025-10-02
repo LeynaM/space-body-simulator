@@ -10,7 +10,7 @@ function Canvas() {
   const { loadBodies } = useBodiesStore();
 
   useEffect(() => {
-    loadBodies();
+    setInterval(() => loadBodies(), 1000);
   }, [loadBodies]);
 
   useEffect(() => {
