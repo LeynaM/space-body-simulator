@@ -4,7 +4,8 @@ import json
 from fastapi import FastAPI, WebSocket
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+
+from models.body import Body
 
 app = FastAPI()
 origins = [
@@ -18,21 +19,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-class Vec2(BaseModel):
-    x: float
-    y: float
-
-    def __add__(self, other: "Vec2") -> "Vec2":
-        if not isinstance(other, Vec2):
-            return NotImplemented
-        return Vec2(x=self.x + other.x, y=self.y + other.y)
-
-
-class Body(BaseModel):
-    position: Vec2
-    velocity: Vec2
 
 
 bodies = []
@@ -56,14 +42,14 @@ async def websocket_endpoint(websocket: WebSocket):
         data = json.dumps(jsonable_encoder(bodies))
         await websocket.send_text(data)
         print("sending", data)
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.2)
 
 
 async def tick():
     while True:
         for body in bodies:
-            body.position += body.velocity
-        await asyncio.sleep(1)
+            body.update()
+        await asyncio.sleep(0.2)
 
 
 @app.on_event("startup")
