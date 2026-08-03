@@ -41,15 +41,19 @@ async def websocket_endpoint(websocket: WebSocket):
     while True:
         data = json.dumps(jsonable_encoder(bodies))
         await websocket.send_text(data)
-        print("sending", data)
         await asyncio.sleep(0.2)
 
 
 async def tick():
+    dt = 0.01
     while True:
-        for body in bodies:
-            body.update()
-        await asyncio.sleep(0.2)
+        for i in range(len(bodies)):
+            for j in range(len(bodies)):
+                if i != j:
+                    bodies[i].applyForce(bodies[j])
+            bodies[i].update(dt)
+
+        await asyncio.sleep(0.02)
 
 
 @app.on_event("startup")
