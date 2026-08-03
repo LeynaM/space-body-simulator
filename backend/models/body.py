@@ -4,6 +4,7 @@ from models.vec2 import Vec2
 
 
 class Body(BaseModel):
+    diameter: float = 40
     position: Vec2
     velocity: Vec2 = Vec2()
     force: Vec2 = Vec2()

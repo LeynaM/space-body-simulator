@@ -11,9 +11,8 @@ export function sketch(p) {
 
     p.fill("yellow");
     p.noStroke();
-    const diameter = 40;
     for (let body of useBodiesStore.getState().bodies) {
-      p.circle(body.position.x, body.position.y, diameter);
+      p.circle(body.position.x, body.position.y, body.diameter);
     }
   };
 
