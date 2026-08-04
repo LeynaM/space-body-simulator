@@ -6,7 +6,9 @@ export const useWebsocketStore = create((set, get) => ({
   connect: (onOpen, onMessage, onClose) => {
     if (get().socket) return;
 
-    const socket = new WebSocket("ws://localhost:8000/ws");
+    // Same origin as the page, so HTTPS deployments get wss:// automatically.
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const socket = new WebSocket(`${protocol}//${window.location.host}/ws`);
 
     socket.onopen = onOpen;
     socket.onmessage = onMessage;

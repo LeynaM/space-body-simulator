@@ -23,6 +23,11 @@ app.add_middleware(
 bodies = []
 
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+
 @app.get("/bodies")
 def read_bodies():
     return bodies

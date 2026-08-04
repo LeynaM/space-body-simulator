@@ -1,0 +1,24 @@
+services:
+
+  backend:
+    build:
+      context: ./backend
+    image: space-body-simulator-backend:latest
+    container_name: space-body-simulator-backend
+    restart: unless-stopped
+    # Bound to loopback: reachable only through Caddy, never from the internet.
+    # 8000 is taken by noughts-and-crosses and 3000 by tilt-game.
+    ports:
+      - "127.0.0.1:8001:8001"
+    healthcheck:
+      # python:slim ships no curl, so the check uses the interpreter instead.
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3

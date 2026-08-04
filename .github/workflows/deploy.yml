@@ -1,0 +1,34 @@
+name: Deploy to Oracle Instance
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    environment: oracle-instance
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd dev/space-body-simulator
+            git fetch --all
+            git reset --hard origin/main
+            cd frontend
+            /home/ubuntu/.volta/bin/npm install
+            /home/ubuntu/.volta/bin/npm run build
+            # Caddy runs as its own user and cannot traverse /home/ubuntu (750),
+            # so the build is published to a web root it can read.
+            rsync -a --delete dist/ /var/www/space-body-simulator/
+            cd ..
+            sudo docker compose up -d --build backend
