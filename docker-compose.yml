@@ -10,6 +10,10 @@ services:
     # 8000 is taken by noughts-and-crosses and 3000 by tilt-game.
     ports:
       - "127.0.0.1:8001:8001"
+    # The instance has under 1GB shared between three projects and no cgroup
+    # limits elsewhere, so a runaway here would take the others down with it.
+    # Steady-state usage is ~70MB.
+    mem_limit: 256m
     healthcheck:
       # python:slim ships no curl, so the check uses the interpreter instead.
       test:

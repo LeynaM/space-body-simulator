@@ -13,7 +13,35 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to server via SSH
+      # The instance has under 1GB of RAM, which a Vite production build can
+      # exhaust. Building here and shipping only the finished dist/ keeps the
+      # server out of it.
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      # Caddy runs as its own user and cannot traverse /home/ubuntu (750),
+      # so the build is published to a web root it can read.
+      - name: Publish frontend build
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
+          rsync -a --delete -e "ssh -i ~/.ssh/deploy_key" \
+            frontend/dist/ \
+            "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/var/www/space-body-simulator/"
+
+      - name: Rebuild backend via SSH
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -24,11 +52,4 @@ jobs:
             cd dev/space-body-simulator
             git fetch --all
             git reset --hard origin/main
-            cd frontend
-            /home/ubuntu/.volta/bin/npm install
-            /home/ubuntu/.volta/bin/npm run build
-            # Caddy runs as its own user and cannot traverse /home/ubuntu (750),
-            # so the build is published to a web root it can read.
-            rsync -a --delete dist/ /var/www/space-body-simulator/
-            cd ..
             sudo docker compose up -d --build backend
